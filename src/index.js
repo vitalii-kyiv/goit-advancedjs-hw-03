@@ -6,6 +6,7 @@ axios.defaults.headers.common['x-api-key'] =
 const select = document.querySelector('.breed-select');
 const loaderText = document.querySelector('.loader');
 const errorText = document.querySelector('.error');
+const catInfoDiv = document.querySelector('.cat-info');
 errorText.hidden = true;
 
 console.log(select);
@@ -21,26 +22,7 @@ function fetchBreeds() {
     })
     .catch(err => console.log(err));
 }
-fetchBreeds();
-
-function fillInSelect() {
-  return fetchBreeds().then(elements => {
-    elements.forEach(({ id, name }) => {
-      const option = document.createElement('option');
-      option.value = id;
-      option.textContent = name;
-      select.add(option);
-      loaderText.hidden = true;
-    });
-  });
-}
-fillInSelect()
-  .then(() => {
-    console.log('Options added to select');
-  })
-  .catch(error => {
-    console.error('Error filling in options:', error);
-  });
+fetchBreeds().then(resp => console.log(resp)); // віддає масив обєктів
 
 function fetchCatByBreed(breedId) {
   const id = breedId;
@@ -54,10 +36,25 @@ function fetchCatByBreed(breedId) {
     })
     .catch(err => console.log(err));
 }
+fetchCatByBreed('acur').then(resp => {
+  console.log(resp);
+});
 
-fetchCatByBreed('acur')
+function fillInSelect() {
+  return fetchBreeds().then(elements => {
+    elements.forEach(({ id, name }) => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = name;
+      select.add(option);
+      loaderText.hidden = true;
+    });
+  });
+}
+
+fillInSelect()
   .then(data => {
-    console.log(data);
+    console.log('Options added to select');
   })
   .catch(error => {
     console.error('Error filling in options:', error);
@@ -75,4 +72,35 @@ function createMarkup(arr) {
   `
     )
     .join('');
+}
+
+select.addEventListener('change', onSelectChange);
+
+function onSelectChange(evt) {
+  evt.preventDefault();
+  const breedId = select.value;
+  console.log(breedId);
+
+  fetchBreeds(breedId)
+    .then(data => {
+      displayCatInfo(data);
+    })
+    .catch(error => {
+      console.error('Error fetching cat info:', error);
+    });
+}
+
+function displayCatInfo(cat) {
+  const { name, description, temperament, url } = cat;
+
+  const markup = `
+    <img class="breed-img" src="${url}" alt="${name} cat" />
+    <h2 class="breed-title">${name}</h2>
+    <p class="breed-text">${description}</p>
+    <h3 class="breed-temperament-title">Temperament</h3>
+    <p class="breed-temperament-text">${temperament}</p>
+  `;
+
+  catInfoDiv.innerHTML = markup;
+  catInfoDiv.hidden = false;
 }
