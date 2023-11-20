@@ -1,5 +1,5 @@
-const apiKey =
-  'live_Er46koKybYqW28gLOCiI46EOwSbW1Of6rmEYmaOYjgdL748hwWdb57JpKIyVtfLR';
+import { fetchBreeds, fetchCatByBreed } from './cat-api-js';
+import SlimSelect from 'slim-select';
 
 const select = document.querySelector('.breed-select');
 const loaderText = document.querySelector('.loader');
@@ -7,54 +7,12 @@ const errorText = document.querySelector('.error');
 const catInfoDiv = document.querySelector('.cat-info');
 errorText.hidden = true;
 
-function fetchBreeds() {
-  return fetch('https://api.thecatapi.com/v1/breeds', {
-    headers: {
-      'x-api-key': apiKey,
-    },
-  })
-    .then(resp => {
-      if (!resp.ok) {
-        throw new Error('Помилка отримання списку порід');
-      }
-      return resp.json();
-    })
-    .catch(err => {
-      console.error(err);
-      throw new Error('Помилка отримання списку порід');
-    });
-}
-
-function fetchCatByBreed(breedId) {
-  return fetch(
-    `https://api.thecatapi.com/v1/images/search?breed_ids=${breedId}`,
-    {
-      headers: {
-        'x-api-key': apiKey,
-      },
-    }
-  )
-    .then(resp => {
-      if (!resp.ok) {
-        throw new Error('Немає даних для вказаного ідентифікатора породи');
-      }
-      return resp.json();
-    })
-    .then(data => {
-      const catData = data[0];
-      console.log(catData);
-      if (!catData) {
-        throw new Error('Немає даних для вказаного ідентифікатора породи');
-      }
-      return catData;
-    })
-    .catch(err => {
-      console.error(err);
-      throw new Error('Помилка отримання інформації про кота за породою');
-    });
-}
+new SlimSelect({
+  select: '.cat-select',
+});
 
 function fillInSelect() {
+  loaderText.hidden = false;
   return fetchBreeds().then(elements => {
     elements.forEach(({ id, name }) => {
       const option = document.createElement('option');
@@ -67,30 +25,26 @@ function fillInSelect() {
 }
 
 fillInSelect()
-  .then(data => {
-    console.log('Опції додані до списку');
-  })
+  .then()
   .catch(error => {
-    console.error('Помилка заповнення опцій:', error);
-    errorText.textContent = 'Помилка заповнення опцій: ' + error.message;
+    loaderText.hidden = true;
     errorText.hidden = false;
   });
 
 select.addEventListener('change', onSelectChange);
 
-function onSelectChange(evt) {
-  evt.preventDefault();
+function onSelectChange() {
+  loaderText.hidden = false;
   const breedId = select.value;
 
   fetchCatByBreed(breedId)
     .then(data => {
       displayCatInfo(data);
+      loaderText.hidden = true;
     })
     .catch(error => {
-      console.error('Помилка отримання інформації про кота:', error);
-      errorText.textContent =
-        'Помилка отримання інформації про кота: ' + error.message;
       errorText.hidden = false;
+      loaderText.hidden = true;
     });
 }
 
@@ -99,10 +53,10 @@ function displayCatInfo(data) {
   const breedInfo = breeds[0];
 
   const markup = `
-    <img class="breed-img" src="${url}" alt="cat" />
+    <img class="breed-img" src="${url}" alt="cat" width=300/>
     <h2>${breedInfo.name}</h2>
-    <p><strong>Опис:</strong> ${breedInfo.description}</p>
-    <p><strong>Темперамент:</strong> ${breedInfo.temperament}</p>
+    <p><strong>Description:</strong> ${breedInfo.description}</p>
+    <p><strong>Temperament:</strong> ${breedInfo.temperament}</p>
   `;
 
   catInfoDiv.innerHTML = markup;
