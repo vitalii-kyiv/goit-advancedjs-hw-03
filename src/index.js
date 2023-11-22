@@ -1,17 +1,15 @@
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
+
 import { fetchBreeds, fetchCatByBreed } from './cat-api-js';
-import SlimSelect from 'slim-select';
 
 const select = document.querySelector('.breed-select');
 const loaderText = document.querySelector('.loader');
-const errorText = document.querySelector('.error');
-const catInfoDiv = document.querySelector('.cat-info');
-errorText.hidden = true;
 
-new SlimSelect({
-  select: '.cat-select',
-});
+const catInfoDiv = document.querySelector('.cat-info');
 
 function fillInSelect() {
+  select.hidden = true;
   loaderText.hidden = false;
   return fetchBreeds().then(elements => {
     elements.forEach(({ id, name }) => {
@@ -19,7 +17,8 @@ function fillInSelect() {
       option.value = id;
       option.textContent = name;
       select.add(option);
-      loaderText.hidden = true;
+      loaderText.style.display = 'none';
+      select.hidden = false;
     });
   });
 }
@@ -27,24 +26,41 @@ function fillInSelect() {
 fillInSelect()
   .then()
   .catch(error => {
-    loaderText.hidden = true;
-    errorText.hidden = false;
+    loaderText.style.display = 'none';
+    iziToast.error({
+      closeOnEscape: true,
+      closeOnClick: true,
+      backgroundColor: 'tomato',
+      messageColor: 'white',
+      position: 'topRight',
+      messageSize: '20',
+      message: `Oops! Something went wrong! Try reloading the page!`,
+    });
   });
 
 select.addEventListener('change', onSelectChange);
 
 function onSelectChange() {
-  loaderText.hidden = false;
+  catInfoDiv.hidden = true;
+  loaderText.style.display = 'block';
   const breedId = select.value;
 
   fetchCatByBreed(breedId)
     .then(data => {
       displayCatInfo(data);
-      loaderText.hidden = true;
+      loaderText.style.display = 'none';
     })
     .catch(error => {
-      errorText.hidden = false;
-      loaderText.hidden = true;
+      loaderText.style.display = 'none';
+      iziToast.error({
+        closeOnEscape: true,
+        closeOnClick: true,
+        backgroundColor: 'tomato',
+        messageColor: 'white',
+        position: 'topRight',
+        messageSize: '20',
+        message: `Oops! Something went wrong! Try reloading the page!`,
+      });
     });
 }
 
@@ -53,12 +69,15 @@ function displayCatInfo(data) {
   const breedInfo = breeds[0];
 
   const markup = `
+  <div class="cat-info-wrapper">
     <img class="breed-img" src="${url}" alt="cat" width=300/>
+    <div class="cat-text-wrapper">
     <h2>${breedInfo.name}</h2>
     <p><strong>Description:</strong> ${breedInfo.description}</p>
     <p><strong>Temperament:</strong> ${breedInfo.temperament}</p>
+    </div>
+    </div>
   `;
-
   catInfoDiv.innerHTML = markup;
   catInfoDiv.hidden = false;
 }

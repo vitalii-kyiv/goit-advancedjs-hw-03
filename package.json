@@ -15,7 +15,10 @@
   "author": "Alexander Repeta <goit-advancedjs-hw-03>",
   "license": "ISC",
   "dependencies": {
+    "@selectize/selectize": "^0.15.2",
     "axios": "^1.6.1",
+    "izitoast": "^1.4.0",
+    "selectize": "^0.12.6",
     "slim-select": "^2.6.0",
     "vite-plugin-full-reload": "^1.0.5",
     "vite-plugin-html-inject": "^1.0.1"
