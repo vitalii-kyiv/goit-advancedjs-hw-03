@@ -10,13 +10,13 @@ export function fetchBreeds() {
   })
     .then(resp => {
       if (!resp.ok) {
-        throw new Error('Помилка отримання списку порід');
+        throw new Error('Error retrieving the list of breeds');
       }
       return resp.json();
     })
     .catch(err => {
       console.error(err);
-      throw new Error('Помилка отримання списку порід');
+      throw new Error('Error retrieving the list of breeds');
     });
 }
 
@@ -30,20 +30,17 @@ export function fetchCatByBreed(breedId) {
     }
   )
     .then(resp => {
-      if (!resp.ok) {
-        throw new Error('Немає даних для вказаного ідентифікатора породи');
+      if (!resp.ok && !catData) {
+        throw new Error('Error getting information about a cat by breed');
       }
       return resp.json();
     })
     .then(data => {
       const catData = data[0];
-      if (!catData) {
-        throw new Error('Немає даних для вказаного ідентифікатора породи');
-      }
       return catData;
     })
     .catch(err => {
       console.error(err);
-      throw new Error('Помилка отримання інформації про кота за породою');
+      throw new Error('Error getting information about a cat by breed');
     });
 }

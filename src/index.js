@@ -1,11 +1,9 @@
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-
 import { fetchBreeds, fetchCatByBreed } from './cat-api-js';
 
 const select = document.querySelector('.breed-select');
 const loaderText = document.querySelector('.loader');
-
 const catInfoDiv = document.querySelector('.cat-info');
 
 function fillInSelect() {
@@ -47,7 +45,7 @@ function onSelectChange() {
 
   fetchCatByBreed(breedId)
     .then(data => {
-      displayCatInfo(data);
+      renderCatInfo(data);
       loaderText.style.display = 'none';
     })
     .catch(error => {
@@ -64,13 +62,13 @@ function onSelectChange() {
     });
 }
 
-function displayCatInfo(data) {
+function renderCatInfo(data) {
   const { url, breeds } = data;
   const breedInfo = breeds[0];
 
   const markup = `
   <div class="cat-info-wrapper">
-    <img class="breed-img" src="${url}" alt="cat" width=300/>
+    <img class="breed-img" src="${url}" alt="cat" width=500/>
     <div class="cat-text-wrapper">
     <h2>${breedInfo.name}</h2>
     <p><strong>Description:</strong> ${breedInfo.description}</p>
